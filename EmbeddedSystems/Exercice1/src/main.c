@@ -24,10 +24,6 @@ int main(int argc, char *argv[])
     {
         exit(EXIT_FAILURE);
     }
-   
-    // Creates file descriptor to communicate between
-    // process using PIPE
-    int fileDescriptor[2], nbytes;
     
     // Allocate memory to create an array to separate
     // the numbers that the processes will calculate
