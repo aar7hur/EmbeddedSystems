@@ -13,7 +13,7 @@
 
 #define ERROR -1
 #define SHARE_THREAD 0
-#define SEMAPHORE_START_VALUE 1
+#define SEMAPHORE_START_VALUE 0
 #define SUCCESS 0
 
 /*
@@ -49,7 +49,7 @@ the letter b will be displayed on the terminal 7 times by the second thread
 */
 typedef struct PrintManager
 {
-    const char * character;
+    char *character;
     int numberOfPrints;
 } PrintManager;
 
@@ -58,12 +58,12 @@ typedef struct PrintManager
 Variables that represents all characters that each thread will print
 
 */
-const char *characterThread1 = "a";
-const char *characterThread2 = "b";
-const char *characterThread3 = "c";
-const char *characterThread4 = "d";
-const char *characterThread5 = "e";
-const char *characterThread6 = "f";
+char *characterThread1 = "a";
+char *characterThread2 = "b";
+char *characterThread3 = "c";
+char *characterThread4 = "d";
+char *characterThread5 = "e";
+char *characterThread6 = "f";
 
 /*
 If pshared has the value 0, then the semaphore is shared between
@@ -74,8 +74,9 @@ variable allocated dynamically on the heap).
 int pshared = SHARE_THREAD;
 uint8_t threadCounter = 0;
 pthread_t threadId[NUMBER_OF_THREADS];
+char *lettersForThreads[NUMBER_OF_THREADS] = {"a", "b", "c", "d", "e", "f"};
 sem_t semaphore;
-
+uint8_t globalCounter;
 
 
 void createThreads(PrintManager *printOrder);

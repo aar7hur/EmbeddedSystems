@@ -17,6 +17,7 @@ PrintManager *printOrder;
 int main(int argc, char *argv[])
 {
    header();
+   globalCounter = 0;
    // allocate memory for 6 structs. 
    // 6 is because the script will have 6 threads running in parallel
    printOrder = (PrintManager *)malloc(NUMBER_OF_THREADS * sizeof(PrintManager));
@@ -35,6 +36,8 @@ int main(int argc, char *argv[])
 
    // creates all threads
    createThreads(printOrder);
+
+   sem_post(&semaphore);
 
    // finish all threads
    terminateThreads();
@@ -80,9 +83,10 @@ void populatePrintManager(PrintManager *printOrder)
 void createThreads(PrintManager *printOrder)
 {
    uint8_t threadCounter = 0;
+   size_t bytesToAllocate = 1;
    while (threadCounter < NUMBER_OF_THREADS)
    {  
-      int *threadNumber = malloc(sizeof(int));
+      int *threadNumber = calloc(bytesToAllocate, sizeof(int));
       *threadNumber = threadCounter;
       if (pthread_create(&(threadId[threadCounter]), NULL, printThreads, threadNumber) == ERROR)
       {
@@ -121,14 +125,24 @@ void terminateThreads(void)
 void *printThreads(void *args)
 {
 
-   sem_wait(&semaphore);
-   
-   for (uint8_t counter =0; counter < printOrder[*(int*)args].numberOfPrints; counter++)
+   // waits for specific semaphore
+   while(1)
    {
-         printf("-%s\n", printOrder[*(int*)args].character);
+      sem_wait(&semaphore);
+      if (printOrder[globalCounter].character == lettersForThreads[*(int*)args])
+      {
+         for (uint8_t counter =0; counter < printOrder[globalCounter].numberOfPrints; counter++)
+         {
+            printf("-%s\n", (char*)lettersForThreads[*(int*)args]);
+         }
+         globalCounter++;
+      }
+      sem_post(&semaphore);
+      usleep(1000);
+      if (globalCounter == NUMBER_OF_THREADS)
+      {
+        sem_post(&semaphore);
+        return EXIT_SUCCESS;
+      }
    }
-
-   usleep(1000);
-   sem_post(&semaphore);
-   free(args);
 }
